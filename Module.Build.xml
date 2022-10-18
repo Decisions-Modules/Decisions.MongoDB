@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<CreateModuleInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Resources NoComponents="true">
+    <CoreServicesDlls>
+      <string>.\Decisions.MongoDB\obj\Decisions.MongoDB.dll</string>
+      <string>.\Decisions.MongoDB\obj\MongoDB.Bson.dll</string>
+      <string>.\Decisions.MongoDB\obj\MongoDB.Driver.dll</string>
+      <string>.\Decisions.MongoDB\obj\MongoDB.Driver.Core.dll</string>
+    </CoreServicesDlls>
+    <CliDlls/>
+    <WebPages/>
+	<SilverlightDlls/>
+    <AgentDlls/>
+    <InstallScript/>
+    <SqlScripts/>
+    <ObjectsToImport/>
+    <MsSqlScript/>
+  </Resources>
+  <Version>8.0.0</Version>
+  <ImagePath>./image.png</ImagePath>
+  <Description></Description>
+</CreateModuleInfo>
