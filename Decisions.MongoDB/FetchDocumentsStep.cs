@@ -19,6 +19,7 @@ namespace Decisions.MongoDB
     public class FetchDocumentsStep : BaseMongoDBStep, ISyncStep, IDataConsumer
     {
         const string RESULTS = "Documents";
+        const string INPUT_LIMIT = "Maximum Results Returned";
 
         public FetchDocumentsStep() { }
         public FetchDocumentsStep(string serverId)
@@ -60,6 +61,44 @@ namespace Decisions.MongoDB
             }
         }
 
+        [WritableValue]
+        private MongoDBSort[] sortFields;
+
+        [PropertyClassification(5, "Sort By Fields", SETTINGS_CATEGORY)]
+        [ArrayTypeEditor(false, false, false, false, ArraySortOrder.None)]
+        public MongoDBSort[] SortFields
+        {
+            get
+            {
+                UpdateSortFieldsInArray(sortFields);
+                return sortFields;
+            }
+            set
+            {
+                sortFields = value;
+                UpdateSortFieldsInArray(sortFields);
+                OnPropertyChanged();
+            }
+        }
+
+        [WritableValue]
+        private bool useLimit;
+
+        [PropertyClassification(10, "Limit Count of Results", SETTINGS_CATEGORY)]
+        public bool UseLimit
+        {
+            get
+            {
+                return useLimit;
+            }
+            set
+            {
+                useLimit = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(InputData));
+            }
+        }
+
         [PropertyHidden]
         public string[] FieldNames
         {
@@ -85,6 +124,17 @@ namespace Decisions.MongoDB
             }
         }
 
+        private void UpdateSortFieldsInArray(MongoDBSort[] sortFields)
+        {
+            if (sortFields == null) return;
+
+            string[] fieldNames = FieldNames;
+            foreach (MongoDBSort sortField in sortFields)
+            {
+                sortField.AllFieldNames = fieldNames;
+            }
+        }
+
         protected override void OnTypeChanged()
         {
             UpdateFiltersInArray(filters);
@@ -98,6 +148,9 @@ namespace Decisions.MongoDB
                 List<DataDescription> inputs = new List<DataDescription>();
 
                 AddInputsFromServerConfig(inputs);
+
+                if (UseLimit)
+                    inputs.Add(new DataDescription(typeof(int?), INPUT_LIMIT, false));
 
                 Dictionary<string, DataDescription> inputNames = new Dictionary<string, DataDescription>();
                 foreach (DataDescription dd in inputs)
@@ -199,7 +252,20 @@ namespace Decisions.MongoDB
         {
             IMongoCollection<TDocument> collection = GetMongoCollection<TDocument>(data);
             FilterDefinition<TDocument> filter = FetchStepUtility.GetCombinedFilter<TDocument>(filters, data, combineFiltersUsingAnd) ?? Builders<TDocument>.Filter.Empty;
-            TDocument[] docs = collection.Find(filter).ToEnumerable().ToArray();
+            IFindFluent<TDocument, TDocument> findQuery = collection.Find(filter);
+            if (sortFields != null && sortFields.Length > 0)
+            {
+                findQuery = findQuery.Sort(FetchStepUtility.GetSortDefinition<TDocument>(sortFields));
+            }
+            if (useLimit)
+            {
+                int? limit = data[INPUT_LIMIT] as int?;
+                if (limit != null && limit > 0)
+                {
+                    findQuery = findQuery.Limit(limit);
+                }
+            }
+            TDocument[] docs = findQuery.ToEnumerable().ToArray();
             if (docs.Length == 0)
             {
                 return null;
