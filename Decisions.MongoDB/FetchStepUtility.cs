@@ -144,5 +144,35 @@ namespace Decisions.MongoDB
             }
         }
 
+        internal static SortDefinition<TDocument> GetSortDefinition<TDocument>(MongoDBSort[] sortFields)
+        {
+            SortDefinition<TDocument> sortDef = null;
+            foreach (MongoDBSort sortField in sortFields)
+            {
+                if (sortField.SortOrder == MongoDBSortOrder.Ascending)
+                {
+                    if (sortDef == null)
+                    {
+                        sortDef = Builders<TDocument>.Sort.Ascending(sortField.FieldName);
+                    }
+                    else
+                    {
+                        sortDef = sortDef.Ascending(sortField.FieldName);
+                    }
+                }
+                else
+                {
+                    if (sortDef == null)
+                    {
+                        sortDef = Builders<TDocument>.Sort.Descending(sortField.FieldName);
+                    }
+                    else
+                    {
+                        sortDef = sortDef.Descending(sortField.FieldName);
+                    }
+                }
+            }
+            return sortDef;
+        }
     }
 }
