@@ -19,7 +19,7 @@
     <ObjectsToImport/>
     <MsSqlScript/>
   </Resources>
-  <Version>7.10</Version>
+  <Version>7.17.0</Version>
   <ImagePath>./image.png</ImagePath>
   <Description></Description>
 </CreateModuleInfo>
