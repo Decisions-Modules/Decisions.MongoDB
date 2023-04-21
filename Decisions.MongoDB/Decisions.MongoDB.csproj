@@ -18,8 +18,8 @@
     <BuildDest>$(RootPath)obj</BuildDest>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DecisionsSDK" Version="8.8.0" />
-    <PackageReference Include="MongoDB.Bson" Version="2.12.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.12.0" />
+    <PackageReference Include="DecisionsSDK" Version="8.9.2" />
+    <PackageReference Include="MongoDB.Bson" Version="2.19.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
   </ItemGroup>
 </Project>
