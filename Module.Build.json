@@ -1,0 +1,26 @@
+{
+    "Resources": {
+	  "NoComponents": true,
+      "CoreServicesDlls": 
+        [
+          "./Decisions.MongoDB/obj/Decisions.MongoDB.dll",
+          "./Decisions.MongoDB/obj/MongoDB.Bson.dll",
+          "./Decisions.MongoDB/obj/MongoDB.Driver.Core.dll",
+          "./Decisions.MongoDB/obj/MongoDB.Driver.dll",
+          "./Decisions.MongoDB/obj/MongoDB.Libmongocrypt.dll",
+          "./Decisions.MongoDB/obj/SharpCompress.dll",
+          "./Decisions.MongoDB/obj/DnsClient.dll"
+        ],
+      "CliDlls": "",
+      "WebPages": "",
+      "SilverlightDlls": "",
+      "AgentDlls": "",
+      "InstallScript": "",
+      "SqlScripts": "",
+      "ObjectsToImport": "",
+      "MsSqlScript": ""
+    },
+    "Version": "8.12.0",
+    "ImagePath": "./image.png",
+    "Description": ""
+}
