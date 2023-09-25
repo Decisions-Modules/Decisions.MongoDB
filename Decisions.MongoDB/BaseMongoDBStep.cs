@@ -38,6 +38,7 @@ namespace Decisions.MongoDB
         protected const string DB_NAME_INPUT = "Database Name";
         protected const string COLLECTION_NAME_INPUT = "Collection Name";
         protected const string PATH_SUCCESS = "Success";
+        protected const string PATH_ERROR = "Error";
 
         [WritableValue]
         private string serverId;

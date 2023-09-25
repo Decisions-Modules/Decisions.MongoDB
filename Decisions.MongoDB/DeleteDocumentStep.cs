@@ -1,67 +1,41 @@
-﻿using DecisionsFramework;
-using DecisionsFramework.Design.ConfigurationStorage.Attributes;
+﻿using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using DecisionsFramework.Design.Flow;
-using DecisionsFramework.Design.Flow.Mapping;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DecisionsFramework.Design.Flow.Mapping;
 
 namespace Decisions.MongoDB
 {
     [Writable]
-    public class DeleteDocumentStep : BaseMongoDBStep, ISyncStep, IDataConsumer
+    public class DeleteDocumentStep : BaseDeleteStep
     {
-        const string DOCUMENT_ID_INPUT = "Document ID";
-
-        public DeleteDocumentStep() { }
-        public DeleteDocumentStep(string serverId)
-        {
-            ServerId = serverId;
-        }
+        public DeleteDocumentStep() : base() { }
+        
+        public DeleteDocumentStep(string serverId) : base(serverId) { }
 
         public override string StepName => "Delete Document";
 
         public override bool ShowTypePicker => false;
 
-        public DataDescription[] InputData
+        public override DataDescription[] InputData => GetInputData(false);
+        
+        protected override string DocumentIdInputName => "Document ID";
+
+        public override OutcomeScenarioData[] OutcomeScenarios => new[]
         {
-            get
-            {
-                List<DataDescription> inputs = new List<DataDescription>();
+            new OutcomeScenarioData(PATH_SUCCESS)
+        };
 
-                AddInputsFromServerConfig(inputs);
-
-                inputs.Add(new DataDescription(GetIdPropertyType(), DOCUMENT_ID_INPUT));
-
-                return inputs.ToArray();
-            }
-        }
-
-        public override OutcomeScenarioData[] OutcomeScenarios
-        {
-            get
-            {
-                return new OutcomeScenarioData[]
-                {
-                    new OutcomeScenarioData(PATH_SUCCESS)
-                };
-            }
-        }
-
-        public ResultData Run(StepStartData data)
+        public override ResultData Run(StepStartData data)
         {
             IMongoCollection<BsonDocument> collection = GetMongoRawDocumentCollection(data);
-            object docId = data[DOCUMENT_ID_INPUT];
+            object docId = data[DocumentIdInputName];
             if (docId == null || docId as string == string.Empty)
                 throw new Exception("Document ID is missing");
             FilterDefinition<BsonDocument> filter = FetchStepUtility.GetIdMatchFilter<BsonDocument>(docId, GetIdPropertyTypeEnum());
             collection.DeleteOne(filter);
             return new ResultData(PATH_SUCCESS);
         }
-
     }
 }
