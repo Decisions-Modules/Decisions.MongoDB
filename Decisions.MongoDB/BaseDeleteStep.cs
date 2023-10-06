@@ -26,7 +26,7 @@ namespace Decisions.MongoDB
             inputs.Add(new DataDescription(GetIdPropertyType(), DocumentIdInputName, isList));
 
             return inputs.ToArray();
-        }
+        } 
         
         public abstract ResultData Run(StepStartData data);
         

@@ -15,6 +15,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -38,7 +39,6 @@ namespace Decisions.MongoDB
         protected const string DB_NAME_INPUT = "Database Name";
         protected const string COLLECTION_NAME_INPUT = "Collection Name";
         protected const string PATH_SUCCESS = "Success";
-        protected const string PATH_ERROR = "Error";
 
         [WritableValue]
         private string serverId;
@@ -292,7 +292,7 @@ namespace Decisions.MongoDB
                 return IdType.Double;
             else
                 return IdType.StringOrObjectId;
-        }
+        } 
 
         protected Type GetIdPropertyType() => GetIdPropertyType(GetIdPropertyTypeEnum());
 
@@ -307,6 +307,55 @@ namespace Decisions.MongoDB
                 case IdType.Double: return typeof(double);
                 default: return null;
             }
+        }
+        
+        protected TData[] GetInputData<TData>(object data, string name)
+        {
+            // pattern 'is' requires non-null and type matching or returns false, safely. quick return for simple mapping
+            if (data is null or "") 
+                throw new LoggedException("Document ID input is missing");
+            
+            // this recursion by definition should never happen twice, we require array input but allow initial dyn call
+            if (!data.GetType().IsArray)
+                return GetInputData<TData>(new[] { data }, name);
+            
+            // the calling method should not pass the type representing an array but rather the target mapped element type
+            if (typeof(TData).IsArray)
+                throw new InvalidConstraintException($"Invalid type {typeof(TData).FullName}, element type expected");
+            
+            
+            // object data at this point is in an array of at least size=1, the generic method can safely rely on GetElementType
+            MethodInfo methodInfo = typeof(BaseMongoDBStep)
+                .GetMethod(nameof(MapInputElement), BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.MakeGenericMethod(typeof(TData));
+
+            // for each element in the input data (we know to be an array), try to map into output
+            return (from input in (object[])data 
+                select (TData)methodInfo?.Invoke(this, new[] { name, input }))
+                .ToArray();
+        }
+
+        private TData MapInputElement<TData>(string inputName, object inputData)
+        {
+            // empty or null input, even if an element of larger input, should be an error
+            if (inputData is null or "")
+                throw new LoggedException($"{inputName} input is missing");
+            // types must match, better to give a friendlier message upfront if customer has dynamic data
+            if (inputData.GetType() != typeof(TData))
+                throw new LoggedException($"{inputName} input of type {inputData.GetType()} does not match expected {typeof(TData)}");
+            
+            TData result;
+            try
+            {
+                result = (TData)inputData;
+            }
+            catch (Exception ex)
+            {
+                throw new LoggedException("Document is missing", ex);
+            }
+            if (result == null)
+                throw new LoggedException("Document is missing");
+            return result;
         }
 
     }

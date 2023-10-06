@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+using System;
+using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Flow.Mapping;
@@ -17,18 +18,6 @@ namespace Decisions.MongoDB
         protected BaseReplaceStep(string serverId)
         {
             ServerId = serverId;
-        }
-
-        protected DataDescription[] GetInputData(bool isList)
-        {
-            List<DataDescription> inputs = new List<DataDescription>();
-
-            AddInputsFromServerConfig(inputs);
-
-            inputs.Add(new DataDescription(GetDocumentType(), DocumentInput));
-            inputs.Add(new DataDescription(GetIdPropertyType(), DocumentIdInputName, isList));
-
-            return inputs.ToArray();
         }
 
         [WritableValue]
@@ -54,5 +43,21 @@ namespace Decisions.MongoDB
                 { new IgnoreInputMapping { InputDataName = DocumentIdInputName } };
 
         protected abstract string DocumentIdInputName { get; }
+
+        protected TDocument GetDocumentInput<TDocument>(StepStartData data)
+        {
+            TDocument doc;
+            try
+            {
+                doc = (TDocument)data[DocumentInput];
+            }
+            catch (Exception ex)
+            {
+                throw new LoggedException("Document is missing", ex);
+            }
+            if (doc == null)
+                throw new LoggedException("Document is missing");
+            return doc;
+        }
     }
 }
