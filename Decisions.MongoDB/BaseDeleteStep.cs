@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Flow.Mapping;
@@ -7,8 +6,7 @@ namespace Decisions.MongoDB
 {
     [Writable]
     public abstract class BaseDeleteStep : BaseMongoDBStep, ISyncStep, IDataConsumer
-    { 
-
+    {
         protected BaseDeleteStep() { }
 
         protected BaseDeleteStep(string serverId)

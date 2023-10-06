@@ -48,7 +48,5 @@ namespace Decisions.MongoDB
                 .DeleteMany(FetchStepUtility.GetIdsInFilter<BsonDocument>(inputs, GetIdPropertyTypeEnum()));
             return result.DeletedCount == 0 ? new ResultData(PATH_ERROR) : new ResultData(PATH_SUCCESS);
         }
-        
-        
     }
 }

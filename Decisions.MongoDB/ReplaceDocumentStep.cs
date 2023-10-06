@@ -11,9 +11,9 @@ namespace Decisions.MongoDB
 {
     [Writable]
     public class ReplaceDocumentStep : BaseReplaceStep
-    { 
-
+    {
         public ReplaceDocumentStep() : base() { }
+        
         public ReplaceDocumentStep(string serverId) : base(serverId) { }
 
         public override string StepName => "Replace Document";
