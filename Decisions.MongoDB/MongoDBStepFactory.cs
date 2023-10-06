@@ -96,13 +96,13 @@ namespace Decisions.MongoDB
             if (stepId.StartsWith("MongoDB.DeleteDoc"))
                 return new DeleteDocumentStep(id);
             if (stepId.StartsWith("MongoDB.DeleteBulkDoc"))
-                return new DeleteBulkDocumentStep(id);
+                return new BulkDeleteDocumentStep(id);
             if (stepId.StartsWith("MongoDB.ReplaceDoc"))
                 return new ReplaceDocumentStep(id);
             if (stepId.StartsWith("MongoDB.InsertDoc"))
                 return new InsertDocumentStep(id);
             if (stepId.StartsWith("MongoDB.InsertBulkDoc"))
-                return new InsertBulkDocumentStep(id);
+                return new BulkInsertDocumentStep(id);
             if (stepId.StartsWith("MongoDB.GetRawDoc"))
                 return new GetRawDocumentStep(id);
 

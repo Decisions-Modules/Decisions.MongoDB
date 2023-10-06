@@ -142,8 +142,6 @@ namespace Decisions.MongoDB
             }
         }
 
-
-
         internal static FilterDefinition<TDocument> GetIdsInFilter<TDocument>(IEnumerable<object> ids, IdType idType)
         {
             switch (idType)

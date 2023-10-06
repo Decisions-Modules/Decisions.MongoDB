@@ -10,13 +10,13 @@ using MongoDB.Driver;
 namespace Decisions.MongoDB
 {
     [Writable]
-    public class InsertBulkDocumentStep : BaseInsertStep
+    public class BulkInsertDocumentStep : BaseInsertStep
     {
         private const string DOCUMENT_INPUT_NAME = "Documents";
         
-        public InsertBulkDocumentStep() : base() { }
+        public BulkInsertDocumentStep() : base() { }
         
-        public InsertBulkDocumentStep(string serverId) : base(serverId) { }
+        public BulkInsertDocumentStep(string serverId) : base(serverId) { }
 
         public override string StepName => "Insert Documents";
         
@@ -36,7 +36,7 @@ namespace Decisions.MongoDB
         
         public override ResultData Run(StepStartData data)
         {
-            MethodInfo insertDocument = typeof(InsertBulkDocumentStep)
+            MethodInfo insertDocument = typeof(BulkInsertDocumentStep)
                 .GetMethod(nameof(InsertDocuments), BindingFlags.NonPublic | BindingFlags.Instance)
                 ?.MakeGenericMethod(GetDocumentType());
             insertDocument?.Invoke(this, new object[] { data });

@@ -9,14 +9,14 @@ using MongoDB.Driver;
 namespace Decisions.MongoDB
 {
     [Writable]
-    public class DeleteBulkDocumentStep : BaseDeleteStep
+    public class BulkDeleteDocumentStep : BaseDeleteStep
     {
         private const string DOCUMENT_ID_INPUT_NAME = "Document IDs";
         private const string PATH_ERROR = "Error";
 
-        public DeleteBulkDocumentStep() : base() { }
+        public BulkDeleteDocumentStep() : base() { }
         
-        public DeleteBulkDocumentStep(string serverId) : base(serverId) { }
+        public BulkDeleteDocumentStep(string serverId) : base(serverId) { }
         public override string StepName => "Bulk Delete Documents"; 
 
         public override DataDescription[] InputData
