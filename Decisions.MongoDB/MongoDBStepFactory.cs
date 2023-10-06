@@ -58,8 +58,11 @@ namespace Decisions.MongoDB
                 list.Add(new FlowStepToolboxInformation($"Get Document By ID", nodes, $"MongoDB.GetDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Fetch Documents", nodes, $"MongoDB.FetchDocs${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Delete Document", nodes, $"MongoDB.DeleteDoc${server.ServerId}"));
+                list.Add(new FlowStepToolboxInformation($"Delete Documents", nodes, $"MongoDB.DeleteBulkDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Replace Document", nodes, $"MongoDB.ReplaceDoc${server.ServerId}"));
+                list.Add(new FlowStepToolboxInformation($"Replace Documents", nodes, $"MongoDB.ReplaceBulkDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Insert Document", nodes, $"MongoDB.InsertDoc${server.ServerId}"));
+                list.Add(new FlowStepToolboxInformation($"Insert Documents", nodes, $"MongoDB.InsertBulkDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Get Raw Document By ID", nodes, $"MongoDB.GetRawDoc${server.ServerId}"));
             }
 
@@ -92,17 +95,17 @@ namespace Decisions.MongoDB
             if (stepId.StartsWith("MongoDB.FetchDocs"))
                 return new FetchDocumentsStep(id);
             if (stepId.StartsWith("MongoDB.DeleteDoc"))
-                return new DeleteDocumentStep_02(id);
+                return new DeleteDocumentStep(id);
             if (stepId.StartsWith("MongoDB.DeleteBulkDoc"))
-                return new DeleteBulkDocumentStep_02(id);
+                return new DeleteBulkDocumentStep(id);
             if (stepId.StartsWith("MongoDB.ReplaceDoc"))
-                return new ReplaceDocumentStep_02(id);
+                return new ReplaceDocumentStep(id);
             if (stepId.StartsWith("MongoDB.ReplaceBulkDoc"))
-                return new ReplaceBulkDocumentStep_02(id);
+                return new ReplaceBulkDocumentStep(id);
             if (stepId.StartsWith("MongoDB.InsertDoc"))
-                return new InsertDocumentStep_02(id);
+                return new InsertDocumentStep(id);
             if (stepId.StartsWith("MongoDB.InsertBulkDoc"))
-                return new InsertBulkDocumentStep_02(id);
+                return new InsertBulkDocumentStep(id);
             if (stepId.StartsWith("MongoDB.GetRawDoc"))
                 return new GetRawDocumentStep(id);
 

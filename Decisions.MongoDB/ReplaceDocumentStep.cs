@@ -10,13 +10,13 @@ using DecisionsFramework;
 namespace Decisions.MongoDB
 {
     [Writable]
-    public class ReplaceDocumentStep_02 : BaseReplaceStep
+    public class ReplaceDocumentStep : BaseReplaceStep
     { 
 
-        public ReplaceDocumentStep_02() : base() { }
-        public ReplaceDocumentStep_02(string serverId) : base(serverId) { }
+        public ReplaceDocumentStep() : base() { }
+        public ReplaceDocumentStep(string serverId) : base(serverId) { }
 
-        public override string StepName => "Replace Document_02";
+        public override string StepName => "Replace Document";
         
         public override DataDescription[] InputData
         {
@@ -37,7 +37,7 @@ namespace Decisions.MongoDB
 
         public override ResultData Run(StepStartData data)
         {
-            MethodInfo replaceDocument = typeof(ReplaceDocumentStep_02)
+            MethodInfo replaceDocument = typeof(ReplaceDocumentStep)
                 .GetMethod(nameof(ReplaceDocument), BindingFlags.NonPublic | BindingFlags.Instance)
                 ?.MakeGenericMethod(GetDocumentType());
             replaceDocument?.Invoke(this, new object[] { data });

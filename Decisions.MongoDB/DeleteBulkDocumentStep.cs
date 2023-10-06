@@ -1,6 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Flow.Mapping;
@@ -10,17 +9,28 @@ using MongoDB.Driver;
 namespace Decisions.MongoDB
 {
     [Writable]
-    public class DeleteBulkDocumentStep_02 : BaseDeleteStep
+    public class DeleteBulkDocumentStep : BaseDeleteStep
     {
-        protected const string PATH_ERROR = "Error";
+        private const string DOCUMENT_ID_INPUT_NAME = "Document IDs";
+        private const string PATH_ERROR = "Error";
 
-        public DeleteBulkDocumentStep_02() : base() { }
+        public DeleteBulkDocumentStep() : base() { }
         
-        public DeleteBulkDocumentStep_02(string serverId) : base(serverId) { }
-        public override string StepName => "Bulk Delete Documents_02";
-        protected override string DocumentIdInputName => "Document IDs";
+        public DeleteBulkDocumentStep(string serverId) : base(serverId) { }
+        public override string StepName => "Bulk Delete Documents"; 
 
-        public override DataDescription[] InputData => GetInputData(true);
+        public override DataDescription[] InputData
+        {
+            get
+            {
+                List<DataDescription> inputs = new List<DataDescription>();
+                
+                AddInputsFromServerConfig(inputs);
+                inputs.Add(new DataDescription(GetIdPropertyType(), DOCUMENT_ID_INPUT_NAME, true));
+
+                return inputs.ToArray();
+            }
+        }
 
         public override OutcomeScenarioData[] OutcomeScenarios => new[]
         {
@@ -30,15 +40,15 @@ namespace Decisions.MongoDB
 
         public override ResultData Run(StepStartData data)
         {
-            List < ObjectId > objectIds = (
-                from object docIdObject in (IList)data[DocumentIdInputName] 
-                select new ObjectId(docIdObject.ToString()))
-                .ToList();
-            
+            object inputIds = data[DOCUMENT_ID_INPUT_NAME];
+            if (inputIds == null || ((string[])inputIds).Length == 0)
+                throw new LoggedException($"{DOCUMENT_ID_INPUT_NAME} is missing");
+            List<string> inputs = new List<string>((string[])data[DOCUMENT_ID_INPUT_NAME]);
             DeleteResult result = GetMongoRawDocumentCollection(data)
-                .DeleteMany(Builders<BsonDocument>.Filter.In("_id", objectIds));
-            
+                .DeleteMany(FetchStepUtility.GetIdsInFilter<BsonDocument>(inputs, GetIdPropertyTypeEnum()));
             return result.DeletedCount == 0 ? new ResultData(PATH_ERROR) : new ResultData(PATH_SUCCESS);
         }
+        
+        
     }
 }

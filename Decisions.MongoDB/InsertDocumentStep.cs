@@ -10,15 +10,15 @@ using System.Reflection;
 namespace Decisions.MongoDB
 {
     [Writable]
-    public class InsertDocumentStep_02 : BaseInsertStep
+    public class InsertDocumentStep : BaseInsertStep
     {
         private const string DOCUMENT_INPUT_NAME =  "Document";
         
-        public InsertDocumentStep_02() : base() { }
+        public InsertDocumentStep() : base() { }
         
-        public InsertDocumentStep_02(string serverId) : base(serverId) { }
+        public InsertDocumentStep(string serverId) : base(serverId) { }
 
-        public override string StepName => "Insert Document_02";
+        public override string StepName => "Insert Document";
 
         public override DataDescription[] InputData
         {
@@ -36,7 +36,7 @@ namespace Decisions.MongoDB
 
         public override ResultData Run(StepStartData data)
         {
-            MethodInfo insertDocument = typeof(InsertDocumentStep_02)
+            MethodInfo insertDocument = typeof(InsertDocumentStep)
                 .GetMethod(nameof(InsertDocument), BindingFlags.NonPublic | BindingFlags.Instance)
                 ?.MakeGenericMethod(GetDocumentType());
             insertDocument?.Invoke(this, new object[] { data });

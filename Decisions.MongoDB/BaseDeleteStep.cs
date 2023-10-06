@@ -16,22 +16,10 @@ namespace Decisions.MongoDB
             ServerId = serverId;
         }
 
-        public override bool ShowTypePicker => false;
-
-        protected DataDescription[] GetInputData(bool isList)
-        {
-            List<DataDescription> inputs = new List<DataDescription>();
-            
-            AddInputsFromServerConfig(inputs);
-            inputs.Add(new DataDescription(GetIdPropertyType(), DocumentIdInputName, isList));
-
-            return inputs.ToArray();
-        } 
+        public override bool ShowTypePicker => false; 
         
         public abstract ResultData Run(StepStartData data);
         
         public abstract DataDescription[] InputData { get; }
-
-        protected abstract string DocumentIdInputName { get; }
     }
 }

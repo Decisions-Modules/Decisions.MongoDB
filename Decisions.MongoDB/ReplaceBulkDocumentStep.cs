@@ -11,13 +11,13 @@ using MongoDB.Driver;
 
 namespace Decisions.MongoDB
 {
-    public class ReplaceBulkDocumentStep_02 : BaseReplaceStep
+    public class ReplaceBulkDocumentStep : BaseReplaceStep
     {
-        public ReplaceBulkDocumentStep_02() : base() { }
+        public ReplaceBulkDocumentStep() : base() { }
         
-        public ReplaceBulkDocumentStep_02(string serverId) : base(serverId) { }
+        public ReplaceBulkDocumentStep(string serverId) : base(serverId) { }
 
-        public override string StepName => "Replace Documents_02";
+        public override string StepName => "Replace Documents";
 
         public override DataDescription[] InputData
         {
@@ -35,7 +35,7 @@ namespace Decisions.MongoDB
         
         public override ResultData Run(StepStartData data)
         {
-            MethodInfo replaceDocument = typeof(ReplaceBulkDocumentStep_02)
+            MethodInfo replaceDocument = typeof(ReplaceBulkDocumentStep)
                 .GetMethod(nameof(ReplaceDocument), BindingFlags.NonPublic | BindingFlags.Instance)
                 ?.MakeGenericMethod(GetDocumentType());
             replaceDocument?.Invoke(this, new object[] { data });
@@ -51,9 +51,11 @@ namespace Decisions.MongoDB
             object[] ids = data[DocumentIdInputName].GetType().IsArray
                 ? (object[])data[DocumentIdInputName]
                 : new[] { data[DocumentIdInputName] };
-            
+
             if (ids.Length == 0 || ids.Any(id => id is null or ""))
-                { throw new LoggedException("One or more Document IDs inputs are missing"); }
+            {
+                throw new LoggedException("One or more Document IDs inputs are missing");
+            }
 
             
             var idType = GetIdPropertyTypeEnum();

@@ -144,6 +144,28 @@ namespace Decisions.MongoDB
             }
         }
 
+
+
+        internal static FilterDefinition<TDocument> GetIdsInFilter<TDocument>(IEnumerable<object> ids, IdType idType)
+        {
+            switch (idType)
+            {
+                case IdType.StringOrObjectId:
+                    return Builders<TDocument>.Filter.In("_id", ids
+                        .Select(id => ObjectId.TryParse(id as string, out ObjectId oid) ? oid : id).ToList());
+                case IdType.Int32:
+                    return Builders<TDocument>.Filter.In("_id", ids.Select(id => (int)id).ToList());
+                case IdType.Int64:
+                    return Builders<TDocument>.Filter.In("_id", ids.Select(id => (long)id).ToList()); 
+                case IdType.Float:
+                    return Builders<TDocument>.Filter.In("_id", ids.Select(id => (float)id).ToList());  
+                case IdType.Double:
+                    return Builders<TDocument>.Filter.In("_id", ids.Select(id => (double)id).ToList());  
+                default:
+                    throw new ArgumentException("Unknown IdType " + idType);
+            }
+        }
+
         internal static SortDefinition<TDocument> GetSortDefinition<TDocument>(MongoDBSort[] sortFields)
         {
             SortDefinition<TDocument> sortDef = null;

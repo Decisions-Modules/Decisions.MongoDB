@@ -1,27 +1,37 @@
 ﻿using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using DecisionsFramework.Design.Flow;
 using MongoDB.Bson;
-using MongoDB.Driver;
-using System;
+using MongoDB.Driver; 
+using System.Collections.Generic;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow.Mapping;
 
 namespace Decisions.MongoDB
 {
     [Writable]
-    public class DeleteDocumentStep_02 : BaseDeleteStep
+    public class DeleteDocumentStep : BaseDeleteStep
     {
-        public DeleteDocumentStep_02() : base() { }
+        private const string DOCUMENT_ID_INPUT_NAME = "Document ID";
+        public DeleteDocumentStep() : base() { }
         
-        public DeleteDocumentStep_02(string serverId) : base(serverId) { }
+        public DeleteDocumentStep(string serverId) : base(serverId) { }
 
-        public override string StepName => "Delete Document_02";
+        public override string StepName => "Delete Document";
 
         public override bool ShowTypePicker => false;
 
-        public override DataDescription[] InputData => GetInputData(false);
-        
-        protected override string DocumentIdInputName => "Document ID";
+        public override DataDescription[] InputData
+        {
+            get
+            {
+                List<DataDescription> inputs = new List<DataDescription>();
+                
+                AddInputsFromServerConfig(inputs);
+                inputs.Add(new DataDescription(GetIdPropertyType(), DOCUMENT_ID_INPUT_NAME, false));
+
+                return inputs.ToArray();
+            }
+        } 
 
         public override OutcomeScenarioData[] OutcomeScenarios => new[]
         {
@@ -29,13 +39,12 @@ namespace Decisions.MongoDB
         };
 
         public override ResultData Run(StepStartData data)
-        {
-            IMongoCollection<BsonDocument> collection = GetMongoRawDocumentCollection(data);
-            object docId = data[DocumentIdInputName];
+        { 
+            object docId = data[DOCUMENT_ID_INPUT_NAME];
             if (docId == null || docId as string == string.Empty)
-                throw new LoggedException("Document ID is missing");
+                throw new LoggedException($"{DOCUMENT_ID_INPUT_NAME} is missing");
             FilterDefinition<BsonDocument> filter = FetchStepUtility.GetIdMatchFilter<BsonDocument>(docId, GetIdPropertyTypeEnum());
-            collection.DeleteOne(filter);
+            GetMongoRawDocumentCollection(data).DeleteOne(filter);
             return new ResultData(PATH_SUCCESS);
         }
     }
