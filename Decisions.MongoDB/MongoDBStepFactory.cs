@@ -60,7 +60,6 @@ namespace Decisions.MongoDB
                 list.Add(new FlowStepToolboxInformation($"Delete Document", nodes, $"MongoDB.DeleteDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Delete Documents", nodes, $"MongoDB.DeleteBulkDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Replace Document", nodes, $"MongoDB.ReplaceDoc${server.ServerId}"));
-                list.Add(new FlowStepToolboxInformation($"Replace Documents", nodes, $"MongoDB.ReplaceBulkDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Insert Document", nodes, $"MongoDB.InsertDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Insert Documents", nodes, $"MongoDB.InsertBulkDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Get Raw Document By ID", nodes, $"MongoDB.GetRawDoc${server.ServerId}"));
@@ -100,8 +99,6 @@ namespace Decisions.MongoDB
                 return new DeleteBulkDocumentStep(id);
             if (stepId.StartsWith("MongoDB.ReplaceDoc"))
                 return new ReplaceDocumentStep(id);
-            if (stepId.StartsWith("MongoDB.ReplaceBulkDoc"))
-                return new ReplaceBulkDocumentStep(id);
             if (stepId.StartsWith("MongoDB.InsertDoc"))
                 return new InsertDocumentStep(id);
             if (stepId.StartsWith("MongoDB.InsertBulkDoc"))

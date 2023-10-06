@@ -323,7 +323,6 @@ namespace Decisions.MongoDB
             if (typeof(TData).IsArray)
                 throw new InvalidConstraintException($"Invalid type {typeof(TData).FullName}, element type expected");
             
-            
             // object data at this point is in an array of at least size=1, the generic method can safely rely on GetElementType
             MethodInfo methodInfo = typeof(BaseMongoDBStep)
                 .GetMethod(nameof(MapInputElement), BindingFlags.NonPublic | BindingFlags.Instance)
