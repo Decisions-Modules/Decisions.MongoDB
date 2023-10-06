@@ -56,28 +56,18 @@ namespace Decisions.MongoDB
             {
                 throw new LoggedException("One or more Document IDs inputs are missing");
             }
-
             
             var idType = GetIdPropertyTypeEnum();
             var documentInput = GetDocumentInput<TDocument>(data);
-
             var idPropertyInfo = GetIdPropertyName<TDocument>();
-            
-            
-            
             var updates = ids
                 .Select(id => new ReplaceOneModel<TDocument>(
                     FetchStepUtility.GetIdMatchFilter<TDocument>(id, idType),
-                    SetId<TDocument>(idPropertyInfo, documentInput, id)){ IsUpsert = Upsert })
+                    SetId(idPropertyInfo, documentInput, id)){ IsUpsert = Upsert })
                 .Cast<WriteModel<TDocument>>()
                 .ToList();
-
-            
-            var result = GetMongoCollection<TDocument>(data).BulkWriteAsync(
-                updates, new BulkWriteOptions() { IsOrdered = false }).Result;
-            
-            
-            // result.ProcessedRequests
+            GetMongoCollection<TDocument>(data).BulkWrite(
+                updates, new BulkWriteOptions() { IsOrdered = false });
         }
 
         private PropertyInfo GetIdPropertyName<TDocument>(string[] searchCandidates = null)

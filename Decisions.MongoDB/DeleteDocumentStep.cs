@@ -12,6 +12,7 @@ namespace Decisions.MongoDB
     public class DeleteDocumentStep : BaseDeleteStep
     {
         private const string DOCUMENT_ID_INPUT_NAME = "Document ID";
+        
         public DeleteDocumentStep() : base() { }
         
         public DeleteDocumentStep(string serverId) : base(serverId) { }
