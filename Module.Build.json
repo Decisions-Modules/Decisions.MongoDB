@@ -20,11 +20,7 @@
       "ObjectsToImport": "",
       "MsSqlScript": ""
     },
-<<<<<<< HEAD
     "Version": "8.16.0",
-=======
-    "Version": "8.15.0",
->>>>>>> origin/8.x
     "ImagePath": "./image.png",
     "Description": ""
 }
