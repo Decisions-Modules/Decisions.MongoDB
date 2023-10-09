@@ -58,8 +58,10 @@ namespace Decisions.MongoDB
                 list.Add(new FlowStepToolboxInformation($"Get Document By ID", nodes, $"MongoDB.GetDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Fetch Documents", nodes, $"MongoDB.FetchDocs${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Delete Document", nodes, $"MongoDB.DeleteDoc${server.ServerId}"));
+                list.Add(new FlowStepToolboxInformation($"Delete Documents", nodes, $"MongoDB.DeleteBulkDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Replace Document", nodes, $"MongoDB.ReplaceDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Insert Document", nodes, $"MongoDB.InsertDoc${server.ServerId}"));
+                list.Add(new FlowStepToolboxInformation($"Insert Documents", nodes, $"MongoDB.InsertBulkDoc${server.ServerId}"));
                 list.Add(new FlowStepToolboxInformation($"Get Raw Document By ID", nodes, $"MongoDB.GetRawDoc${server.ServerId}"));
             }
 
@@ -93,10 +95,14 @@ namespace Decisions.MongoDB
                 return new FetchDocumentsStep(id);
             if (stepId.StartsWith("MongoDB.DeleteDoc"))
                 return new DeleteDocumentStep(id);
+            if (stepId.StartsWith("MongoDB.DeleteBulkDoc"))
+                return new BulkDeleteDocumentStep(id);
             if (stepId.StartsWith("MongoDB.ReplaceDoc"))
                 return new ReplaceDocumentStep(id);
             if (stepId.StartsWith("MongoDB.InsertDoc"))
                 return new InsertDocumentStep(id);
+            if (stepId.StartsWith("MongoDB.InsertBulkDoc"))
+                return new BulkInsertDocumentStep(id);
             if (stepId.StartsWith("MongoDB.GetRawDoc"))
                 return new GetRawDocumentStep(id);
 
