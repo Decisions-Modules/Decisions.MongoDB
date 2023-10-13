@@ -12,12 +12,11 @@ namespace Decisions.MongoDB
     public class BulkDeleteDocumentStep : BaseDeleteStep
     {
         private const string DOCUMENT_ID_INPUT_NAME = "Document IDs";
-        private const string PATH_ERROR = "Error";
 
         public BulkDeleteDocumentStep() : base() { }
         
         public BulkDeleteDocumentStep(string serverId) : base(serverId) { }
-        public override string StepName => "Bulk Delete Documents"; 
+        public override string StepName => "Delete Documents"; 
 
         public override DataDescription[] InputData
         {
@@ -34,8 +33,7 @@ namespace Decisions.MongoDB
 
         public override OutcomeScenarioData[] OutcomeScenarios => new[]
         {
-            new OutcomeScenarioData(PATH_SUCCESS),
-            new OutcomeScenarioData(PATH_ERROR)
+            new OutcomeScenarioData(PATH_SUCCESS)
         }; 
 
         public override ResultData Run(StepStartData data)
@@ -46,7 +44,7 @@ namespace Decisions.MongoDB
             List<string> inputs = new List<string>((string[])data[DOCUMENT_ID_INPUT_NAME]);
             DeleteResult result = GetMongoRawDocumentCollection(data)
                 .DeleteMany(FetchStepUtility.GetIdsInFilter<BsonDocument>(inputs, GetIdPropertyTypeEnum()));
-            return result.DeletedCount == 0 ? new ResultData(PATH_ERROR) : new ResultData(PATH_SUCCESS);
+            return new ResultData(PATH_SUCCESS);
         }
     }
 }
