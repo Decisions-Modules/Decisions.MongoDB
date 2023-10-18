@@ -1,45 +1,26 @@
-﻿using DecisionsFramework;
-using DecisionsFramework.Design.ConfigurationStorage.Attributes;
+﻿using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Flow.Mapping;
 using DecisionsFramework.Design.Flow.Mapping.InputImpl;
-using DecisionsFramework.Design.Properties;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Decisions.MongoDB
 {
     [Writable]
-    public class ReplaceDocumentStep : BaseMongoDBStep, ISyncStep, IDataConsumer, IDefaultInputMappingStep
+    public class ReplaceDocumentStep : BaseReplaceStep
     {
         const string DOCUMENT_INPUT = "Document";
         const string DOCUMENT_ID_INPUT = "Document ID";
-
-        public ReplaceDocumentStep() { }
-        public ReplaceDocumentStep(string serverId)
-        {
-            ServerId = serverId;
-        }
-
         public override string StepName => "Replace Document";
 
-        [WritableValue]
-        private bool upsert = true;
+        public ReplaceDocumentStep() : base() { }
+        
+        public ReplaceDocumentStep(string serverId) : base(serverId) { }
 
-        [PropertyClassification(0, "Insert Document If ID Not Found", SETTINGS_CATEGORY)]
-        public bool Upsert
-        {
-            get { return upsert; }
-            set { upsert = value; OnPropertyChanged(); }
-        }
-
-        public DataDescription[] InputData
+        public override DataDescription[] InputData
         {
             get
             {
@@ -54,7 +35,7 @@ namespace Decisions.MongoDB
             }
         }
 
-        public IInputMapping[] DefaultInputs
+        public new IInputMapping[] DefaultInputs
         {
             get
             {
@@ -65,23 +46,12 @@ namespace Decisions.MongoDB
             }
         }
 
-        public override OutcomeScenarioData[] OutcomeScenarios
-        {
-            get
-            {
-                return new OutcomeScenarioData[]
-                {
-                    new OutcomeScenarioData(PATH_SUCCESS)
-                };
-            }
-        }
-
-        public ResultData Run(StepStartData data)
+        public override ResultData Run(StepStartData data)
         {
             MethodInfo replaceDocument = typeof(ReplaceDocumentStep)
                 .GetMethod(nameof(ReplaceDocument), BindingFlags.NonPublic | BindingFlags.Instance)
-                .MakeGenericMethod(GetDocumentType());
-            replaceDocument.Invoke(this, new object[] { data });
+                ?.MakeGenericMethod(GetDocumentType());
+            replaceDocument?.Invoke(this, new object[] { data });
             return new ResultData(PATH_SUCCESS);
         }
 
