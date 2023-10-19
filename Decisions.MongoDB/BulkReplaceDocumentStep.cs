@@ -61,11 +61,11 @@ namespace Decisions.MongoDB
                     throw new LoggedException("One or more replace document items is missing corresponding 'Id' value");
                 if (doc.Document == null)
                     throw new LoggedException("One or more replace document items 'Document' is null/missing");
-                if (doc is not TDocument)
+                if (doc.Document is not TDocument document)
                     throw new LoggedException("Input document does not match target type");
                 writeModels.Add(new ReplaceOneModel<TDocument>(
                     FetchStepUtility.GetIdMatchFilter<TDocument>(doc.Id, idType), 
-                    (TDocument)doc.Document) { IsUpsert = upsert });
+                    document) { IsUpsert = upsert });
             }
             GetMongoCollection<TDocument>(data).BulkWrite(writeModels);
         }
