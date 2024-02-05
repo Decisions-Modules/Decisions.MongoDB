@@ -10,10 +10,7 @@ using DecisionsFramework.ServiceLayer.Utilities;
 using DecisionsFramework.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Decisions.MongoDB
 {
@@ -75,8 +72,13 @@ namespace Decisions.MongoDB
 
         public override BaseActionType[] GetActions(AbstractUserContext userContext, EntityActionType[] types)
         {
-            List<BaseActionType> actions = new List<BaseActionType>(base.GetActions(userContext, types) ?? new BaseActionType[0]);
-            actions.Add(new EditObjectAction(typeof(MongoDBServer), "Edit", "", "", () => this, (usercontext, obj) => { ((MongoDBServer)obj).Store(); }));
+            List<BaseActionType> actions = new List<BaseActionType>(base.GetActions(userContext, types) ?? Array.Empty<BaseActionType>())
+            {
+                new EditObjectAction(typeof(MongoDBServer), "Edit", "", "", () => this, (_, obj) =>
+                {
+                    ((MongoDBServer)obj).Store();
+                })
+            };
             return actions.ToArray();
         }
 

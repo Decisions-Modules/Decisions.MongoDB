@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>     
+    <TargetFramework>net8.0</TargetFramework>     
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     <LangVersion>9.0</LangVersion>
 	<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
@@ -18,7 +18,7 @@
     <BuildDest>$(RootPath)obj</BuildDest>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DecisionsSDK" Version="8.9.2" />
+    <PackageReference Include="DecisionsSDK" Version="9.0.1-beta" />
     <PackageReference Include="MongoDB.Bson" Version="2.19.1" />
     <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
   </ItemGroup>
