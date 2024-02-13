@@ -1,9 +1,8 @@
-﻿using DecisionsFramework;
-using DecisionsFramework.Data.ORMapper;
+﻿using System;
+using DecisionsFramework;
 using DecisionsFramework.Design.Flow.Service;
 using DecisionsFramework.ServiceLayer;
 using DecisionsFramework.ServiceLayer.Actions;
-using DecisionsFramework.ServiceLayer.Actions.Common;
 using DecisionsFramework.ServiceLayer.Services.Folder;
 using DecisionsFramework.ServiceLayer.Utilities;
 using MongoDB.Bson;
@@ -11,53 +10,25 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DecisionsFramework.ServiceLayer.Services.ConfigurationStorage;
+using DecisionsFramework.ServiceLayer.Services.ConfigurationStorage.CreateRegistration;
 
 namespace Decisions.MongoDB
 {
+    [Obsolete("Previously this folder was necessary only to provide action to Create MongoDB Database Server integration, but now we can create it from gallery")]
     public class MongoDBFolderBehavior : SystemFolderBehavior
     {
-        public override BaseActionType[] GetFolderActions(Folder folder, BaseActionType[] proposedActions, EntityActionType[] types)
-        {
-            List<BaseActionType> list = new List<BaseActionType>(base.GetFolderActions(folder, proposedActions, types) ?? new BaseActionType[0]);
-            list.Add(new EditObjectAction(typeof(MongoDBServer), "Add MongoDB Server", "", "", null,
-                                                  new MongoDBServer() { EntityFolderID = folder.FolderID },
-                                                  new SetValueDelegate(AddServer))
-            {
-                ActionAddsType = typeof(MongoDBServer),
-                RefreshScope = ActionRefreshScope.OwningFolder
-            });
-            return list.ToArray();
-        }
-
-        private void AddServer(AbstractUserContext usercontext, object obj)
-        {
-            new DynamicORM().Store(obj as MongoDBServer);
-        }
-
     }
 
     public class MongoDBInitializer : IInitializable
     {
-        const string MONGO_DB_FOLDER_ID = "MONGODB_SERVER_FOLDER";
-        private static readonly Log log = new Log("MongoDB - MongoDBInitializer");
         public void Initialize()
         {
-            ORM<Folder> orm = new ORM<Folder>();
-            Folder folder = orm.Fetch(MONGO_DB_FOLDER_ID);
-            if (folder == null)
-            {
-                log.Debug($"Creating System Folder '{MONGO_DB_FOLDER_ID}'");
-                folder = new Folder(MONGO_DB_FOLDER_ID, "MongoDB", Constants.INTEGRATIONS_FOLDER_ID);
-                folder.FolderBehaviorType = typeof(MongoDBFolderBehavior).FullName;
-
-                orm.Store(folder);
-            }
-
+            EntityActionFactoriesHolder.GetInstance().RegisterObjectForType(typeof(Folder), new MongoDBActionsFactory());
+            NewRegistrationFactories.RegisterCategory(
+                new FilteredActionCategory("DataTypes/Integration",
+                    action => action.Name.Contains("MongoDB", StringComparison.InvariantCultureIgnoreCase) ? GalleryConstants.DATABASE_INTEGRATION_CATEGORY : null)
+            );
             FlowEditService.RegisterModuleBasedFlowStepFactory(new MongoDBStepFactory());
 
             // Register new conventions to be used for all MongoDB collections:
@@ -66,7 +37,6 @@ namespace Decisions.MongoDB
                 new IgnoreExtraElementsConvention(true),
                 new ObjectIdToStringConvention()
             }, type => true);
-
         }
     }
 
