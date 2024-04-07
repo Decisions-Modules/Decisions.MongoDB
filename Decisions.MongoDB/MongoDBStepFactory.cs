@@ -4,6 +4,8 @@ using DecisionsFramework.Design.Flow;
 using System.Collections.Generic;
 using System.Linq;
 using DecisionsFramework.ServiceLayer.Services.Projects;
+using DecisionsFramework.ServiceLayer.Utilities;
+using DecisionsFramework.ServiceLayer.Services.Folder;
 
 namespace Decisions.MongoDB
 {
@@ -13,10 +15,12 @@ namespace Decisions.MongoDB
         const string PARENT_NODE = "MongoDB";
         public const string ADVANCED_NODE = "Advanced";
 
+        
         public override string[] GetRootCategories(string flowId, string folderId) => new [] { ROOT_CATEGORY_NODE };
 
         public override string[] GetSubCategories(string[] nodes, string flowId, string folderId)
         {
+            var project = ProjectUtility.GetProjectOfEntity(folderId);
             if (nodes == null || nodes.Length == 0 || nodes[0] != ROOT_CATEGORY_NODE)
                 return Array.Empty<string>();
 
@@ -26,9 +30,8 @@ namespace Decisions.MongoDB
             if (nodes[1] != PARENT_NODE)
                 return Array.Empty<string>();
 
-            if (nodes.Length == 2)
-            {
-                var project = ProjectUtility.GetProjectOfEntity(folderId);
+            if (nodes.Length == 2 && project != null && ProjectUtility.IsDependentModule(project.FolderID, "Decisions.MongoDB"))
+            {               
                 var servers = ProjectUtility.FetchAvailableProjectEntities<MongoDBServer>(project.FolderID);
                 var categories = servers.Select(item => item.EntityName).Concat(new string[] { ADVANCED_NODE }).ToArray();
                 
@@ -40,43 +43,45 @@ namespace Decisions.MongoDB
 
         public override FlowStepToolboxInformation[] GetStepsInformation(string[] nodes, string flowId, string folderId)
         {
+            var project = ProjectUtility.GetProjectOfEntity(folderId);
             if (nodes == null || nodes.Length != 3 || nodes[0] != ROOT_CATEGORY_NODE || nodes[1] != PARENT_NODE)
                 return Array.Empty<FlowStepToolboxInformation>();
 
             List<FlowStepToolboxInformation> list = new ();
-           
-            if (nodes[2] == ADVANCED_NODE)
+
+           if(project != null && ProjectUtility.IsDependentModule(project.FolderID, "Decisions.MongoDB"))
             {
-                list.Add(new FlowStepToolboxInformation("List Database Names", nodes, "MongoDB.ListDBs"));
-                list.Add(new FlowStepToolboxInformation("Drop Database", nodes, "MongoDB.DropDB"));
-                list.Add(new FlowStepToolboxInformation("List Collection Names", nodes, "MongoDB.ListCollections"));
-                list.Add(new FlowStepToolboxInformation("Drop Collection", nodes, "MongoDB.DropCollection"));
-                list.Add(new FlowStepToolboxInformation("Rename Collection", nodes, "MongoDB.RenameCollection"));
-            }
-            else
-            {
-                var project = ProjectUtility.GetProjectOfEntity(folderId);
-                
-                var servers = ProjectUtility.FetchAvailableProjectEntities<MongoDBServer>(project.FolderID, new WhereCondition[]
+                if (nodes[2] == ADVANCED_NODE)
                 {
+                    list.Add(new FlowStepToolboxInformation("List Database Names", nodes, "MongoDB.ListDBs"));
+                    list.Add(new FlowStepToolboxInformation("Drop Database", nodes, "MongoDB.DropDB"));
+                    list.Add(new FlowStepToolboxInformation("List Collection Names", nodes, "MongoDB.ListCollections"));
+                    list.Add(new FlowStepToolboxInformation("Drop Collection", nodes, "MongoDB.DropCollection"));
+                    list.Add(new FlowStepToolboxInformation("Rename Collection", nodes, "MongoDB.RenameCollection"));
+                }
+                else
+                {
+
+                    var servers = ProjectUtility.FetchAvailableProjectEntities<MongoDBServer>(project.FolderID, new WhereCondition[]
+                    {
                     new FieldWhereCondition($"{ORMEntityAttribute.GetTableNameFromTypeName(nameof(MongoDBServer))}.entity_name", QueryMatchType.Equals, nodes[2])
-                });
-                MongoDBServer server = servers.FirstOrDefault();
-                
-                if (server == null)
-                    return Array.Empty<FlowStepToolboxInformation>();
+                    });
+                    MongoDBServer server = servers.FirstOrDefault();
 
-                list.Add(new FlowStepToolboxInformation("Get Document By ID", nodes, $"MongoDB.GetDoc${server.ServerId}"));
-                list.Add(new FlowStepToolboxInformation("Fetch Documents", nodes, $"MongoDB.FetchDocs${server.ServerId}"));
-                list.Add(new FlowStepToolboxInformation("Delete Document", nodes, $"MongoDB.DeleteDoc${server.ServerId}"));
-                list.Add(new FlowStepToolboxInformation("Delete Documents", nodes, $"MongoDB.BulkDeleteDoc${server.ServerId}"));
-                list.Add(new FlowStepToolboxInformation("Replace Document", nodes, $"MongoDB.ReplaceDoc${server.ServerId}"));
-                list.Add(new FlowStepToolboxInformation("Replace Documents", nodes, $"MongoDB.BulkReplaceDoc${server.ServerId}"));
-                list.Add(new FlowStepToolboxInformation("Insert Document", nodes, $"MongoDB.InsertDoc${server.ServerId}"));
-                list.Add(new FlowStepToolboxInformation("Insert Documents", nodes, $"MongoDB.BulkInsertDoc${server.ServerId}"));
-                list.Add(new FlowStepToolboxInformation("Get Raw Document By ID", nodes, $"MongoDB.GetRawDoc${server.ServerId}"));
+                    if (server == null)
+                        return Array.Empty<FlowStepToolboxInformation>();
+
+                    list.Add(new FlowStepToolboxInformation("Get Document By ID", nodes, $"MongoDB.GetDoc${server.ServerId}"));
+                    list.Add(new FlowStepToolboxInformation("Fetch Documents", nodes, $"MongoDB.FetchDocs${server.ServerId}"));
+                    list.Add(new FlowStepToolboxInformation("Delete Document", nodes, $"MongoDB.DeleteDoc${server.ServerId}"));
+                    list.Add(new FlowStepToolboxInformation("Delete Documents", nodes, $"MongoDB.BulkDeleteDoc${server.ServerId}"));
+                    list.Add(new FlowStepToolboxInformation("Replace Document", nodes, $"MongoDB.ReplaceDoc${server.ServerId}"));
+                    list.Add(new FlowStepToolboxInformation("Replace Documents", nodes, $"MongoDB.BulkReplaceDoc${server.ServerId}"));
+                    list.Add(new FlowStepToolboxInformation("Insert Document", nodes, $"MongoDB.InsertDoc${server.ServerId}"));
+                    list.Add(new FlowStepToolboxInformation("Insert Documents", nodes, $"MongoDB.BulkInsertDoc${server.ServerId}"));
+                    list.Add(new FlowStepToolboxInformation("Get Raw Document By ID", nodes, $"MongoDB.GetRawDoc${server.ServerId}"));
+                }
             }
-
             return list.ToArray();
         }
 
