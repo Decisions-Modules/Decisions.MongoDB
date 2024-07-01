@@ -6,16 +6,17 @@ using System.Linq;
 using DecisionsFramework.ServiceLayer.Services.Projects;
 using DecisionsFramework.ServiceLayer.Utilities;
 using DecisionsFramework.ServiceLayer.Services.Folder;
+using DecisionsFramework.ServiceLayer.Services.ConfigurationStorage;
 
 namespace Decisions.MongoDB
 {
-    public class MongoDBStepFactory : BaseFlowEntityFactory
+    public class MongoDBStepFactory : BaseFlowEntityFactory, IModuleRegistrationFactory
     {
         const string ROOT_CATEGORY_NODE = "Integration";
         const string PARENT_NODE = "MongoDB";
         public const string ADVANCED_NODE = "Advanced";
+        public string ModuleName => "Decisions.MongoDB";
 
-        
         public override string[] GetRootCategories(string flowId, string folderId) => new [] { ROOT_CATEGORY_NODE };
 
         public override string[] GetSubCategories(string[] nodes, string flowId, string folderId)
