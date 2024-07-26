@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow.Service;
 using DecisionsFramework.ServiceLayer;
 using DecisionsFramework.ServiceLayer.Actions;
+using DecisionsFramework.ServiceLayer.Actions.Common;
 using DecisionsFramework.ServiceLayer.Services.Folder;
 using DecisionsFramework.ServiceLayer.Utilities;
 using MongoDB.Bson;
@@ -18,6 +21,21 @@ namespace Decisions.MongoDB
     [Obsolete("Previously this folder was necessary only to provide action to Create MongoDB Database Server integration, but now we can create it from gallery")]
     public class MongoDBFolderBehavior : SystemFolderBehavior
     {
+        public override bool CanDeleteFolder(string folderId) => true;
+        
+        public override BaseActionType[] GetFolderActions(Folder folder, BaseActionType[] proposedActions, EntityActionType[] types)
+        {
+            List<BaseActionType> actions = new List<BaseActionType>(base.GetFolderActions(folder, proposedActions, types) ?? Array.Empty<BaseActionType>());
+
+            //'Delete Folder' action
+            BaseActionType deleteFolderAction = proposedActions.FirstOrDefault(pa => pa.Name == Folder.DELETE_FOLDER_ACTION_NAME);
+            if (deleteFolderAction != null)
+            {
+                actions.Add(deleteFolderAction);
+            }
+
+            return actions.ToArray();
+        }
     }
 
     public class MongoDBInitializer : IInitializable
