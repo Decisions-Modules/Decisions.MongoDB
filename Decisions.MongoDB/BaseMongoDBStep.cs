@@ -6,6 +6,7 @@ using DecisionsFramework.Design.Flow.CoreSteps;
 using DecisionsFramework.Design.Flow.Interface;
 using DecisionsFramework.Design.Flow.Mapping;
 using DecisionsFramework.Design.Flow.Service;
+using DecisionsFramework.Design.Projects;
 using DecisionsFramework.Design.Properties;
 using DecisionsFramework.Design.Properties.Attributes;
 using DecisionsFramework.ServiceLayer.Utilities;
@@ -32,6 +33,7 @@ namespace Decisions.MongoDB
         [Description("Double")] Double
     };
 
+    [ValidationRules]
     public abstract class BaseMongoDBStep : BaseFlowAwareStep, IAddedToFlow, IExportable, IValidationSource
     {
         protected const string SETTINGS_CATEGORY = "Settings";
@@ -44,6 +46,7 @@ namespace Decisions.MongoDB
         private string serverId;
 
         [PropertyHidden]
+        [RestrictProject]
         public string ServerId
         {
             get { return serverId; }

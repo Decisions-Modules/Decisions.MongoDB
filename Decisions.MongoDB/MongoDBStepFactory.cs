@@ -31,12 +31,16 @@ namespace Decisions.MongoDB
             if (nodes[1] != PARENT_NODE)
                 return Array.Empty<string>();
 
-            if (nodes.Length == 2 && project != null && ProjectUtility.IsDependentModule(project.FolderID, "Decisions.MongoDB"))
+            if (nodes.Length == 2 && project != null)
             {               
                 var servers = ProjectUtility.FetchAvailableProjectEntities<MongoDBServer>(project.FolderID);
-                var categories = servers.Select(item => item.EntityName).Concat(new string[] { ADVANCED_NODE }).ToArray();
+                var categories = servers.Select(item => item.EntityName).ToList();
+                if (ProjectUtility.IsDependentModule(project.FolderID, ModuleName))
+                {
+                    categories.Add(ADVANCED_NODE);
+                }
                 
-                return categories;
+                return categories.ToArray();
             }
 
             return Array.Empty<string>();
@@ -50,9 +54,9 @@ namespace Decisions.MongoDB
 
             List<FlowStepToolboxInformation> list = new ();
 
-           if(project != null && ProjectUtility.IsDependentModule(project.FolderID, "Decisions.MongoDB"))
+           if(project != null)
             {
-                if (nodes[2] == ADVANCED_NODE)
+                if (nodes[2] == ADVANCED_NODE && ProjectUtility.IsDependentModule(project.FolderID, "Decisions.MongoDB"))
                 {
                     list.Add(new FlowStepToolboxInformation("List Database Names", nodes, "MongoDB.ListDBs"));
                     list.Add(new FlowStepToolboxInformation("Drop Database", nodes, "MongoDB.DropDB"));
