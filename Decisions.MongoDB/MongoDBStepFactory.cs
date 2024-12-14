@@ -63,6 +63,8 @@ namespace Decisions.MongoDB
                     list.Add(new FlowStepToolboxInformation("List Collection Names", nodes, "MongoDB.ListCollections"));
                     list.Add(new FlowStepToolboxInformation("Drop Collection", nodes, "MongoDB.DropCollection"));
                     list.Add(new FlowStepToolboxInformation("Rename Collection", nodes, "MongoDB.RenameCollection"));
+                    list.Add(new FlowStepToolboxInformation("Get Database Stats", nodes, "MongoDB.GetDatabaseStats"));
+                    list.Add(new FlowStepToolboxInformation("Get Collection Stats", nodes, "MongoDB.GetCollectionStats"));
                 }
                 else
                 {
@@ -104,6 +106,10 @@ namespace Decisions.MongoDB
                 return new DropCollectionStep();
             if (stepId.StartsWith("MongoDB.RenameCollection"))
                 return new RenameCollectionStep();
+            if (stepId.StartsWith("MongoDB.GetDatabaseStats"))
+                return new GetDatabaseStatsStep();
+            if (stepId.StartsWith("MongoDB.GetCollectionStats"))
+                return new GetCollectionStatsStep();
 
             string[] parts = stepId.Split('$');
             if (parts.Length < 2)
