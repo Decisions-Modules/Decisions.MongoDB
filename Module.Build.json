@@ -20,7 +20,7 @@
       "ObjectsToImport": "",
       "MsSqlScript": ""
     },
-    "Version": "9.6.0",
+    "Version": "9.7.0",
     "ImagePath": "./image.png",
     "Description": ""
 }

@@ -5,7 +5,6 @@ using DecisionsFramework;
 using DecisionsFramework.Design.Flow.Service;
 using DecisionsFramework.ServiceLayer;
 using DecisionsFramework.ServiceLayer.Actions;
-using DecisionsFramework.ServiceLayer.Actions.Common;
 using DecisionsFramework.ServiceLayer.Services.Folder;
 using DecisionsFramework.ServiceLayer.Utilities;
 using MongoDB.Bson;
@@ -15,6 +14,7 @@ using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
 using DecisionsFramework.ServiceLayer.Services.ConfigurationStorage;
 using DecisionsFramework.ServiceLayer.Services.ConfigurationStorage.CreateRegistration;
+using DecisionsFramework.Utilities.CodeGeneration.FlowSteps;
 
 namespace Decisions.MongoDB
 {
@@ -48,6 +48,7 @@ namespace Decisions.MongoDB
                     action => action.Name.Contains("MongoDB", StringComparison.InvariantCultureIgnoreCase) ? GalleryConstants.DATABASE_INTEGRATION_CATEGORY : null)
             );
             FlowEditService.RegisterModuleBasedFlowStepFactory(new MongoDBStepFactory());
+            FlowEditService.RegisterModuleBasedProjectStepFactory(new MongoDBStepFactory() { ProjectScope = ToolboxProjectScope.ProjectOnly});
 
             // Register new conventions to be used for all MongoDB collections:
             ConventionRegistry.Register("CustomConventions", new ConventionPack

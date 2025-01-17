@@ -1,11 +1,9 @@
-﻿using System;
-using DecisionsFramework.Data.ORMapper;
+﻿using DecisionsFramework.Data.ORMapper;
 using DecisionsFramework.Design.Flow;
 using System.Collections.Generic;
 using System.Linq;
+using DecisionsFramework.Design.Flow.Service.StepFactories;
 using DecisionsFramework.ServiceLayer.Services.Projects;
-using DecisionsFramework.ServiceLayer.Utilities;
-using DecisionsFramework.ServiceLayer.Services.Folder;
 using DecisionsFramework.ServiceLayer.Services.ConfigurationStorage;
 
 namespace Decisions.MongoDB
@@ -17,25 +15,29 @@ namespace Decisions.MongoDB
         public const string ADVANCED_NODE = "Advanced";
         public string ModuleName => "Decisions.MongoDB";
 
-        public override string[] GetRootCategories(string flowId, string folderId) => new [] { ROOT_CATEGORY_NODE };
+        public override string[] GetRootCategories(string projectId, string flowId, string folderId) => [ROOT_CATEGORY_NODE];
 
-        public override string[] GetSubCategories(string[] nodes, string flowId, string folderId)
+        public override string[] GetSubCategories(string projectId, string[] nodes, string flowId, string folderId)
         {
-            var project = ProjectUtility.GetProjectOfEntity(folderId);
             if (nodes == null || nodes.Length == 0 || nodes[0] != ROOT_CATEGORY_NODE)
-                return Array.Empty<string>();
+                return [];
 
             if (nodes.Length == 1)
-                return new string[] { PARENT_NODE };
+            {
+                var countStatement = ToolboxHelper.CreateSelectStatement<MongoDBServer>(ProjectScope, projectId);
+                var count = new ORM<MongoDBServer>().RunQueryForCount(countStatement);
+                    
+                return count > 0 ? [PARENT_NODE] : [];
+            }
 
             if (nodes[1] != PARENT_NODE)
-                return Array.Empty<string>();
+                return [];
 
-            if (nodes.Length == 2 && project != null)
+            if (nodes.Length == 2 && !string.IsNullOrEmpty(projectId))
             {               
-                var servers = ProjectUtility.FetchAvailableProjectEntities<MongoDBServer>(project.FolderID);
+                var servers = ProjectUtility.FetchAvailableProjectEntities<MongoDBServer>(projectId);
                 var categories = servers.Select(item => item.EntityName).ToList();
-                if (ProjectUtility.IsDependentModule(project.FolderID, ModuleName))
+                if (ProjectUtility.IsDependentModule(projectId, ModuleName))
                 {
                     categories.Add(ADVANCED_NODE);
                 }
@@ -43,20 +45,19 @@ namespace Decisions.MongoDB
                 return categories.ToArray();
             }
 
-            return Array.Empty<string>();
+            return [];
         }
 
-        public override FlowStepToolboxInformation[] GetStepsInformation(string[] nodes, string flowId, string folderId)
+        public override FlowStepToolboxInformation[] GetStepsInformation(string projectId, string[] nodes, string flowId, string folderId)
         {
-            var project = ProjectUtility.GetProjectOfEntity(folderId);
             if (nodes == null || nodes.Length != 3 || nodes[0] != ROOT_CATEGORY_NODE || nodes[1] != PARENT_NODE)
-                return Array.Empty<FlowStepToolboxInformation>();
+                return [];
 
-            List<FlowStepToolboxInformation> list = new ();
+            List<FlowStepToolboxInformation> list = [];
 
-           if(project != null)
+           if (!string.IsNullOrEmpty(projectId))
             {
-                if (nodes[2] == ADVANCED_NODE && ProjectUtility.IsDependentModule(project.FolderID, "Decisions.MongoDB"))
+                if (nodes[2] == ADVANCED_NODE && ProjectUtility.IsDependentModule(projectId, "Decisions.MongoDB"))
                 {
                     list.Add(new FlowStepToolboxInformation("List Database Names", nodes, "MongoDB.ListDBs"));
                     list.Add(new FlowStepToolboxInformation("Drop Database", nodes, "MongoDB.DropDB"));
@@ -69,14 +70,13 @@ namespace Decisions.MongoDB
                 else
                 {
 
-                    var servers = ProjectUtility.FetchAvailableProjectEntities<MongoDBServer>(project.FolderID, new WhereCondition[]
-                    {
-                    new FieldWhereCondition($"{ORMEntityAttribute.GetTableNameFromTypeName(nameof(MongoDBServer))}.entity_name", QueryMatchType.Equals, nodes[2])
-                    });
+                    var servers = ProjectUtility.FetchAvailableProjectEntities<MongoDBServer>(projectId, [
+                        new FieldWhereCondition($"{ORMEntityAttribute.GetTableNameFromTypeName(nameof(MongoDBServer))}.entity_name", QueryMatchType.Equals, nodes[2])
+                    ]);
                     MongoDBServer server = servers.FirstOrDefault();
 
                     if (server == null)
-                        return Array.Empty<FlowStepToolboxInformation>();
+                        return [];
 
                     list.Add(new FlowStepToolboxInformation("Get Document By ID", nodes, $"MongoDB.GetDoc${server.ServerId}"));
                     list.Add(new FlowStepToolboxInformation("Fetch Documents", nodes, $"MongoDB.FetchDocs${server.ServerId}"));
@@ -139,10 +139,8 @@ namespace Decisions.MongoDB
             return null;
         }
 
-        public override FlowStepToolboxInformation[] GetFavoriteSteps(string flowId, string folderId)
-            => Array.Empty<FlowStepToolboxInformation>();
+        public override FlowStepToolboxInformation[] GetFavoriteSteps(string flowId, string folderId) => [];
 
-        public override FlowStepToolboxInformation[] SearchSteps(string flowId, string folderId, string searchString, int maxRecords)
-            => Array.Empty<FlowStepToolboxInformation>();
+        public override FlowStepToolboxInformation[] SearchSteps(string projectId, string flowId, string folderId, string searchString, int maxRecords) => [];
     }
 }
