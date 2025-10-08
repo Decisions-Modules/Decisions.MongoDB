@@ -86,6 +86,7 @@ namespace Decisions.MongoDB
                     list.Add(new FlowStepToolboxInformation("Replace Documents", nodes, $"MongoDB.BulkReplaceDoc${server.ServerId}"));
                     list.Add(new FlowStepToolboxInformation("Insert Document", nodes, $"MongoDB.InsertDoc${server.ServerId}"));
                     list.Add(new FlowStepToolboxInformation("Insert Documents", nodes, $"MongoDB.BulkInsertDoc${server.ServerId}"));
+                    list.Add(new FlowStepToolboxInformation("Upsert Document", nodes, $"MongoDB.UpsertDoc${server.ServerId}"));
                     list.Add(new FlowStepToolboxInformation("Get Raw Document By ID", nodes, $"MongoDB.GetRawDoc${server.ServerId}"));
                 }
             }
@@ -133,6 +134,8 @@ namespace Decisions.MongoDB
                 return new InsertDocumentStep(id);
             if (stepId.StartsWith("MongoDB.BulkInsertDoc"))
                 return new BulkInsertDocumentStep(id);
+            if (stepId.StartsWith("MongoDB.UpsertDoc"))
+                return new UpsertDocumentStep(id);
             if (stepId.StartsWith("MongoDB.GetRawDoc"))
                 return new GetRawDocumentStep(id);
 
