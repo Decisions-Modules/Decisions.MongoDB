@@ -3,24 +3,14 @@ using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Flow.Mapping;
+using DecisionsFramework.Design.Properties;
 using MongoDB.Driver;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Decisions.MongoDB
 {
-    /// <summary>
-    /// Upserts (insert or update) a document in MongoDB based on a filter criteria.
-    /// 
-    /// Required Inputs:
-    /// - Document: The document to insert/update
-    /// - Filter: MongoDBFilter configuration specifying what to match
-    /// 
-    /// Filter Value Resolution:
-    /// The step automatically extracts filter values from the document when possible.
-    /// For example, if your filter has FieldName="name", it will use the document's "name" field value for filtering.
-    /// You can also provide explicit filter value inputs to override the document values.
-    /// </summary>
     [Writable]
     public class UpsertDocumentStep : BaseInsertStep
     {
@@ -33,6 +23,54 @@ namespace Decisions.MongoDB
 
         public override string StepName => "Upsert Document";
 
+        [WritableValue]
+        private MongoDBFilter filter;
+
+        [PropertyClassification(1, "Filter Criteria", SETTINGS_CATEGORY)]
+        public MongoDBFilter Filter
+        {
+            get
+            {
+                UpdateFilterInProperty(filter);
+                return filter;
+            }
+            set
+            {
+                filter = value;
+                UpdateFilterInProperty(filter);
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(InputData));
+            }
+        }
+
+        [PropertyHidden]
+        public string[] FieldNames
+        {
+            get
+            {
+                Type type = GetDocumentType();
+                if (type == typeof(string))
+                    return new string[0];
+
+                return type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Select(x => x.Name).ToArray();
+            }
+        }
+
+        private void UpdateFilterInProperty(MongoDBFilter filter)
+        {
+            if (filter == null) return;
+
+            string[] fieldNames = FieldNames;
+            filter.AllFieldNames = fieldNames;
+        }
+
+        protected override void OnTypeChanged()
+        {
+            UpdateFilterInProperty(filter);
+            base.OnTypeChanged();
+        }
+
         public override DataDescription[] InputData
         {
             get
@@ -42,10 +80,82 @@ namespace Decisions.MongoDB
                 AddInputsFromServerConfig(inputs);
 
                 inputs.Add(new DataDescription(GetDocumentType(), DOCUMENT_INPUT_NAME));
-                inputs.Add(new DataDescription(typeof(MongoDBFilter), FILTER_INPUT_NAME));
+
+                // Add filter-specific inputs if filter is configured
+                if (filter != null)
+                {
+                    Dictionary<string, DataDescription> inputNames = new Dictionary<string, DataDescription>();
+                    foreach (DataDescription dd in inputs)
+                        inputNames.Add(dd.Name, dd);
+
+                    foreach (DataDescription dd in filter.GetDataDescriptions(GetDocumentType()))
+                    {
+                        if (!inputNames.ContainsKey(dd.Name))
+                        {
+                            inputNames.Add(dd.Name, dd);
+                            inputs.Add(dd);
+                        }
+                    }
+                }
 
                 return inputs.ToArray();
             }
+        }
+
+        public override ValidationIssue[] GetAdditionalValidationIssues()
+        {
+            List<ValidationIssue> issues = new List<ValidationIssue>();
+
+            issues.AddRange(GetDuplicateInputValidationIssues());
+
+            return issues.ToArray();
+        }
+
+        private ValidationIssue[] GetDuplicateInputValidationIssues()
+        {
+            if (filter == null)
+                return new ValidationIssue[0];
+
+            // Check all inputs for duplicates. If the type is the same, warn; otherwise, error.
+            HashSet<string> warnings = new HashSet<string>();
+            HashSet<string> errors = new HashSet<string>();
+            List<DataDescription> inputs = new List<DataDescription>();
+
+            AddInputsFromServerConfig(inputs);
+
+            Dictionary<string, DataDescription> inputNames = new Dictionary<string, DataDescription>();
+            foreach (DataDescription dd in inputs)
+                inputNames.Add(dd.Name, dd);
+
+            foreach (DataDescription dd in filter.GetDataDescriptions(GetDocumentType()))
+            {
+                if (!inputNames.ContainsKey(dd.Name))
+                {
+                    inputNames.Add(dd.Name, dd);
+                }
+                else
+                {
+                    if (dd.FullTypeName == inputNames[dd.Name].FullTypeName)
+                    {
+                        warnings.Add(dd.Name);
+                    }
+                    else
+                    {
+                        errors.Add(dd.Name);
+                    }
+                }
+            }
+
+            List<ValidationIssue> issues = new List<ValidationIssue>();
+            foreach (string warningName in warnings)
+            {
+                issues.Add(new ValidationIssue(this, $"Multiple filter criteria use the name '{warningName}'. The same input value will be used for each.", "", BreakLevel.Warning, nameof(Filter)));
+            }
+            foreach (string errorName in errors)
+            {
+                issues.Add(new ValidationIssue(this, $"Multiple filter criteria use the name '{errorName}' and the types do not match.", "", BreakLevel.Fatal, nameof(Filter)));
+            }
+            return issues.ToArray();
         }
 
         public override ResultData Run(StepStartData data)
@@ -61,7 +171,6 @@ namespace Decisions.MongoDB
         {
             IMongoCollection<TDocument> collection = GetMongoCollection<TDocument>(data);
             TDocument doc;
-            MongoDBFilter filter;
             
             try
             {
@@ -74,14 +183,6 @@ namespace Decisions.MongoDB
             if (doc == null)
                 throw new LoggedException("Document is missing");
 
-            try
-            {
-                filter = (MongoDBFilter)data[FILTER_INPUT_NAME];
-            }
-            catch(Exception ex)
-            {
-                throw new LoggedException("Filter is missing", ex);
-            }
             if (filter == null)
                 throw new LoggedException("Filter is missing");
 
