@@ -68,6 +68,7 @@ namespace Decisions.MongoDB
                     list.Add(new FlowStepToolboxInformation("Get Collection Stats", nodes, "MongoDB.GetCollectionStats"));
                     list.Add(new FlowStepToolboxInformation("Create Index", nodes, "MongoDB.CreateIndex"));
                     list.Add(new FlowStepToolboxInformation("List Indexes", nodes, "MongoDB.ListIndexes"));
+                    list.Add(new FlowStepToolboxInformation("Drop Index", nodes, "MongoDB.DropIndex"));
                 }
                 else
                 {
@@ -117,6 +118,8 @@ namespace Decisions.MongoDB
                 return new CreateIndexStep();
             if (stepId.StartsWith("MongoDB.ListIndexes"))
                 return new ListIndexesStep();
+            if(stepId.StartsWith("MongoDB.DropIndex"))
+                return new DropIndexStep();
 
             string[] parts = stepId.Split('$');
             if (parts.Length < 2)
