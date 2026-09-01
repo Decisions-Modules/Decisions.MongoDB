@@ -64,7 +64,6 @@ public class CreateIndexStep : BaseMongoDBAdvancedStep, ISyncStep, IDataConsumer
         string collName = data.Data[COLLECTION_NAME_INPUT] as string;
         IndexKeyDefinition[] indexKeys = data.Data[INDEX_KEYS] as IndexKeyDefinition[];
         
-
         if (string.IsNullOrEmpty(connString))
             throw new Exception("Connection string is missing");
         if (string.IsNullOrEmpty(dbName))
