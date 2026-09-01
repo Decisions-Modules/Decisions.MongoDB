@@ -15,10 +15,13 @@ namespace Decisions.MongoDB
     /// </summary>
     public abstract class BaseMongoDBAdvancedStep : BaseFlowAwareStep, IAddedToFlow
     {
+        protected Log log = new Log(nameof(BaseMongoDBAdvancedStep));
         protected const string CONN_STRING_INPUT = "Connection String";
         protected const string DB_NAME_INPUT = "Database Name";
         protected const string COLLECTION_NAME_INPUT = "Collection Name";
         protected const string PATH_SUCCESS = "Success";
+        protected const string PATH_ERROR = "Error";
+        protected const string SETTINGS_CATEGORY = "Settings";
 
         public abstract string StepName { get; }
 
