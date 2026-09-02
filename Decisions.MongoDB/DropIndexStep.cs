@@ -13,7 +13,6 @@ namespace Decisions.MongoDB;
 [Writable]
 public class DropIndexStep : BaseMongoDBAdvancedStep, ISyncStep, IDataConsumer
 {
-    private const string RESULT = "Dropped Index Name";
     private const string ERROR = "Error Dropping Index";
     private const string INDEX_NAME_INPUT = "Index Name";
     
@@ -40,7 +39,7 @@ public class DropIndexStep : BaseMongoDBAdvancedStep, ISyncStep, IDataConsumer
         {
             return new OutcomeScenarioData[]
             {
-                new OutcomeScenarioData(PATH_SUCCESS, new DataDescription(typeof(string), RESULT)),
+                new OutcomeScenarioData(PATH_SUCCESS),
                 new OutcomeScenarioData(PATH_ERROR, new DataDescription(typeof(string), ERROR)),
             };
         }
