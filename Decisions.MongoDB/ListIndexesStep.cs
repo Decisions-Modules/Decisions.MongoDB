@@ -38,7 +38,7 @@ public class ListIndexesStep : BaseMongoDBAdvancedStep, ISyncStep, IDataConsumer
         {
             return new OutcomeScenarioData[]
             {
-                new OutcomeScenarioData(PATH_SUCCESS, new DataDescription(typeof(string[]), RESULT)),
+                new OutcomeScenarioData(PATH_SUCCESS, new DataDescription(typeof(string), RESULT, true)),
                 new OutcomeScenarioData(PATH_ERROR, new DataDescription(typeof(string), ERROR)),
             };
         }

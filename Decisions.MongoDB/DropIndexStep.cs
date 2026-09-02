@@ -71,7 +71,7 @@ public class DropIndexStep : BaseMongoDBAdvancedStep, ISyncStep, IDataConsumer
             // Drop index from Collection
             collection.Indexes.DropOne(indexName);
 
-            return new ResultData(PATH_SUCCESS, new DataPair[] { new DataPair(RESULT, indexName) });
+            return new ResultData(PATH_SUCCESS);
         }
         catch (Exception ex)
         {
