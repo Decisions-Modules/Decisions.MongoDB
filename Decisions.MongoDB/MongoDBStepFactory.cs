@@ -66,6 +66,9 @@ namespace Decisions.MongoDB
                     list.Add(new FlowStepToolboxInformation("Rename Collection", nodes, "MongoDB.RenameCollection"));
                     list.Add(new FlowStepToolboxInformation("Get Database Stats", nodes, "MongoDB.GetDatabaseStats"));
                     list.Add(new FlowStepToolboxInformation("Get Collection Stats", nodes, "MongoDB.GetCollectionStats"));
+                    list.Add(new FlowStepToolboxInformation("Create Index", nodes, "MongoDB.CreateIndex"));
+                    list.Add(new FlowStepToolboxInformation("List Indexes", nodes, "MongoDB.ListIndexes"));
+                    list.Add(new FlowStepToolboxInformation("Drop Index", nodes, "MongoDB.DropIndex"));
                 }
                 else
                 {
@@ -111,6 +114,12 @@ namespace Decisions.MongoDB
                 return new GetDatabaseStatsStep();
             if (stepId.StartsWith("MongoDB.GetCollectionStats"))
                 return new GetCollectionStatsStep();
+            if (stepId.StartsWith("MongoDB.CreateIndex"))
+                return new CreateIndexStep();
+            if (stepId.StartsWith("MongoDB.ListIndexes"))
+                return new ListIndexesStep();
+            if(stepId.StartsWith("MongoDB.DropIndex"))
+                return new DropIndexStep();
 
             string[] parts = stepId.Split('$');
             if (parts.Length < 2)

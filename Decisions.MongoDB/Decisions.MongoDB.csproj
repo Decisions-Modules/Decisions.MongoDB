@@ -18,7 +18,7 @@
     <BuildDest>$(RootPath)obj</BuildDest>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DecisionsSDK" Version="9.7.0-beta" />
+    <PackageReference Include="DecisionsSDK" Version="10.1.0" />
     <PackageReference Include="MongoDB.Bson" Version="2.19.1" />
     <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
     <PackageReference Include="SharpCompress" Version="0.48.1" />
